@@ -2,1207 +2,1086 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>나는 어떤 플레이어일까? MBTI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bigcat Vowel Monster 2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+  :root {
+    --neon-cyan: #00f5ff;
+    --neon-pink: #ff006e;
+    --neon-yellow: #ffea00;
+    --neon-green: #39ff14;
+    --neon-purple: #bf00ff;
+    --dark-bg: #04010f;
+    --panel-bg: rgba(0,10,40,0.85);
+    --glow-cyan: 0 0 10px #00f5ff, 0 0 30px #00f5ff55;
+    --glow-pink: 0 0 10px #ff006e, 0 0 30px #ff006e55;
+    --glow-green: 0 0 10px #39ff14, 0 0 30px #39ff1455;
+  }
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{height:100%}
+  * { margin:0; padding:0; box-sizing:border-box; }
 
-:root{
-  --pink:#FF0064;
-  --pink2:#FF4D8F;
-  --red:#E8000B;
-  --green:#00C853;
-  --green2:#00FF6B;
-  --black:#060608;
-  --dark:#0C0D12;
-  --card:#12141B;
-  --card-border:#FF006430;
-  --text:#F2F2F2;
-  --muted:#666;
-  --gold:#FFD700;
-}
+  body {
+    background: var(--dark-bg);
+    font-family: 'Exo 2', sans-serif;
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
 
-/* ══ BODY & BG ══ */
-body{
-  font-family:'Noto Sans KR',sans-serif;
-  min-height:100%;
-  background:var(--dark);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  padding:14px 11px 28px;
-  -webkit-text-size-adjust:100%;
-  position:relative;
-  overflow-x:hidden;
-}
+  /* === SCANLINE OVERLAY === */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,245,255,0.015) 2px, rgba(0,245,255,0.015) 4px);
+    pointer-events:none; z-index:9999;
+  }
 
-/* 오징어게임 특유의 격자 패턴 배경 */
-body::before{
-  content:'';
-  position:fixed;inset:0;z-index:0;
-  background-image:
-    linear-gradient(rgba(255,0,100,0.04) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,0,100,0.04) 1px,transparent 1px);
-  background-size:32px 32px;
-  pointer-events:none;
-}
+  /* === STARFIELD === */
+  #starfield {
+    position:fixed; inset:0;
+    pointer-events:none; z-index:0;
+  }
 
-/* 코너 장식 삼각형 */
-body::after{
-  content:'';
-  position:fixed;top:0;left:0;right:0;height:3px;z-index:999;
-  background:linear-gradient(90deg,var(--red),var(--pink),var(--green));
-  pointer-events:none;
-}
+  /* === HEADER === */
+  #header {
+    position:relative; z-index:10;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 20px;
+    border-bottom: 1px solid rgba(0,245,255,0.3);
+    background: rgba(0,0,20,0.9);
+  }
+  #title {
+    font-family:'Orbitron',monospace;
+    font-size:1.4rem; font-weight:900;
+    color: var(--neon-cyan);
+    text-shadow: var(--glow-cyan);
+    letter-spacing:3px;
+  }
+  #title span { color: var(--neon-pink); text-shadow: var(--glow-pink); }
 
-/* ══ 애니메이션 ══ */
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-@keyframes pop{0%{transform:scale(0.88);opacity:0}65%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
-@keyframes slideUp{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
-@keyframes wiggle{0%,100%{transform:rotate(-5deg)scale(1)}50%{transform:rotate(5deg)scale(1.08)}}
-@keyframes bubblePop{0%{transform:scale(0)translateY(6px);opacity:0}65%{transform:scale(1.08)translateY(-2px)}100%{transform:scale(1)translateY(0);opacity:1}}
-@keyframes shine{0%{left:-120%}100%{left:120%}}
-@keyframes flicker{0%,89%,91%,96%,100%{opacity:1}90%,97%{opacity:0.35}}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 16px var(--pink),0 0 32px rgba(255,0,100,0.3)}50%{box-shadow:0 0 28px var(--pink),0 0 56px rgba(255,0,100,0.5)}}
-@keyframes scanMove{0%{top:-4px}100%{top:100vh}}
-@keyframes revealRow{from{transform:translateX(-12px);opacity:0}to{transform:translateX(0);opacity:1}}
+  #score-panel {
+    display:flex; gap:30px; align-items:center;
+  }
+  .stat-block {
+    text-align:center;
+  }
+  .stat-label {
+    font-size:0.6rem; color:rgba(255,255,255,0.5);
+    letter-spacing:2px; text-transform:uppercase;
+  }
+  .stat-value {
+    font-family:'Orbitron',monospace;
+    font-size:1.2rem; font-weight:700;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 10px #ffea00;
+  }
+  #combo-display {
+    font-family:'Orbitron',monospace;
+    font-size:1rem; color: var(--neon-pink);
+    text-shadow: var(--glow-pink);
+    opacity:0; transition:opacity 0.3s;
+  }
+  #combo-display.show { opacity:1; }
 
-/* 스캔라인 */
-.scanline{
-  position:fixed;top:0;left:0;right:0;height:4px;z-index:9998;
-  background:linear-gradient(transparent,rgba(255,0,100,0.08),transparent);
-  pointer-events:none;
-  animation:scanMove 7s linear infinite;
-}
+  #lives-panel { display:flex; gap:6px; }
+  .heart {
+    font-size:1.4rem;
+    filter: drop-shadow(0 0 6px #ff006e);
+    transition: transform 0.3s;
+  }
+  .heart.lost { filter:grayscale(1) brightness(0.4); transform:scale(0.8); }
 
-/* ══ SCREEN ══ */
-.screen{display:none;width:100%;max-width:430px;position:relative;z-index:1}
-.screen.active{display:block}
+  #header-btns { display:flex; gap:8px; }
+  .hdr-btn {
+    background: rgba(0,245,255,0.1);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family:'Orbitron',monospace;
+    font-size:0.65rem;
+    padding:6px 12px;
+    border-radius:4px;
+    cursor:pointer;
+    letter-spacing:1px;
+    transition: all 0.2s;
+  }
+  .hdr-btn:hover { background:rgba(0,245,255,0.25); box-shadow: var(--glow-cyan); }
 
-/* ══ CARD ══ */
-.card{
-  background:var(--card);
-  border:1px solid var(--card-border);
-  border-radius:0;
-  padding:26px 18px;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.04) inset,
-    0 0 40px rgba(255,0,100,0.12),
-    0 24px 64px rgba(0,0,0,0.7);
-  animation:pop 0.38s cubic-bezier(0.175,0.885,0.32,1.1) forwards;
-  width:100%;
-  position:relative;
-  overflow:hidden;
-}
-/* 상단 컬러 바 */
-.card::before{
-  content:'';
-  position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--red) 0%,var(--pink) 50%,var(--green) 100%);
-}
-/* 코너 장식 */
-.card::after{
-  content:'';
-  position:absolute;bottom:0;right:0;
-  width:0;height:0;
-  border-style:solid;
-  border-width:0 0 28px 28px;
-  border-color:transparent transparent rgba(255,0,100,0.25) transparent;
-}
+  /* === LEVEL BADGE === */
+  #level-badge {
+    position:relative; z-index:10;
+    display:flex; justify-content:center; align-items:center; gap:15px;
+    padding:6px 20px;
+    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.1), transparent);
+  }
+  #level-text {
+    font-family:'Orbitron',monospace;
+    font-size:0.75rem; color: var(--neon-cyan);
+    letter-spacing:3px;
+  }
+  #xp-bar-wrap {
+    width:200px; height:6px;
+    background:rgba(255,255,255,0.1);
+    border-radius:3px;
+    overflow:hidden;
+    border:1px solid rgba(0,245,255,0.3);
+  }
+  #xp-bar {
+    height:100%; width:0%;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+    box-shadow: 0 0 8px var(--neon-cyan);
+    transition: width 0.4s ease;
+    border-radius:3px;
+  }
+  #target-vowel-display {
+    font-family:'Orbitron',monospace;
+    font-size:0.75rem;
+    color: var(--neon-green);
+    letter-spacing:2px;
+  }
 
-/* ══ INTRO ══ */
-#intro-screen{text-align:center}
+  /* === GAME AREA === */
+  #game-area {
+    position:relative;
+    width:100%; 
+    overflow:hidden;
+    z-index:5;
+  }
 
-.sq-emblem{
-  margin:0 auto 18px;
-  width:80px;height:80px;
-  position:relative;
-  display:flex;align-items:center;justify-content:center;
-  animation:glowPulse 2.5s ease-in-out infinite;
-}
-.sq-emblem svg{position:absolute;inset:0;width:100%;height:100%}
-.sq-emblem-icon{font-size:30px;position:relative;z-index:1;animation:wiggle 3.5s ease-in-out infinite}
+  /* === MONSTER === */
+  .monster {
+    position:absolute;
+    display:flex; flex-direction:column; align-items:center;
+    cursor:pointer;
+    transition: transform 0.1s;
+    user-select:none;
+    z-index:20;
+  }
+  .monster:hover { transform:scale(1.08); }
+  .monster:active { transform:scale(0.92); }
 
-.intro-label{
-  font-family:'Black Han Sans',sans-serif;
-  font-size:9px;letter-spacing:6px;color:var(--muted);
-  text-transform:uppercase;margin-bottom:8px;
-}
+  .monster-face {
+    font-size:2.4rem;
+    line-height:1;
+    filter: drop-shadow(0 0 8px currentColor);
+    animation: monsterFloat 2s ease-in-out infinite;
+  }
+  @keyframes monsterFloat {
+    0%,100% { transform:translateY(0) rotate(-3deg); }
+    50% { transform:translateY(-5px) rotate(3deg); }
+  }
 
-#intro-screen h1{
-  font-family:'Black Han Sans',sans-serif;
-  font-size:26px;color:var(--text);
-  margin-bottom:6px;line-height:1.15;
-  text-shadow:0 0 30px rgba(255,0,100,0.6);
-  animation:flicker 5s infinite;
-  letter-spacing:2px;
-}
-#intro-screen h1 em{
-  color:var(--pink);font-style:normal;
-  text-shadow:0 0 20px var(--pink),0 0 40px rgba(255,0,100,0.5);
-}
+  .monster-word {
+    font-family:'Orbitron',monospace;
+    font-size:0.75rem; font-weight:700;
+    margin-top:3px;
+    padding:3px 8px;
+    border-radius:20px;
+    letter-spacing:1px;
+    text-shadow:none;
+    white-space:nowrap;
+  }
+  .monster.target .monster-word {
+    background: rgba(255,0,110,0.25);
+    border:1px solid var(--neon-pink);
+    color: #fff;
+    box-shadow: var(--glow-pink);
+  }
+  .monster.other .monster-word {
+    background: rgba(0,245,255,0.15);
+    border:1px solid rgba(0,245,255,0.4);
+    color: rgba(255,255,255,0.8);
+  }
 
-.intro-sub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.7}
+  /* health bar on monster */
+  .monster-hp {
+    width:60px; height:3px;
+    background:rgba(255,255,255,0.15);
+    border-radius:2px;
+    margin-top:2px;
+    overflow:hidden;
+  }
+  .monster-hp-fill {
+    height:100%;
+    background: var(--neon-green);
+    box-shadow: var(--glow-green);
+    border-radius:2px;
+    transition: width 0.2s;
+  }
 
-/* 4가지 카테고리 */
-.cat-panel{
-  display:grid;grid-template-columns:1fr 1fr;gap:5px;
-  margin-bottom:18px;
-  border:1px solid rgba(255,255,255,0.07);
-  padding:10px;background:rgba(255,255,255,0.02);
-}
-.cat-item{
-  padding:9px 6px;text-align:center;
-  font-size:11px;font-weight:700;
-  border:1px solid currentColor;
-  letter-spacing:0.5px;
-  opacity:0.85;
-}
+  /* === PARTICLES === */
+  .particle {
+    position:absolute; pointer-events:none; z-index:30;
+    border-radius:50%;
+    animation: particleFly var(--dur) ease-out forwards;
+  }
+  @keyframes particleFly {
+    0% { transform:translate(0,0) scale(1); opacity:1; }
+    100% { transform:translate(var(--tx),var(--ty)) scale(0); opacity:0; }
+  }
 
-.rule-text{
-  font-family:'Black Han Sans',sans-serif;
-  font-size:10px;letter-spacing:3px;color:var(--muted);
-  margin-bottom:14px;
-}
+  .hit-text {
+    position:absolute; pointer-events:none; z-index:31;
+    font-family:'Orbitron',monospace; font-weight:900;
+    animation: hitFloat 0.8s ease-out forwards;
+  }
+  @keyframes hitFloat {
+    0% { transform:translate(-50%,-50%) scale(0.5); opacity:1; }
+    50% { transform:translate(-50%,-120%) scale(1.2); opacity:1; }
+    100% { transform:translate(-50%,-180%) scale(1); opacity:0; }
+  }
 
-#name-input{
-  width:100%;padding:13px 14px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.12);
-  border-bottom:2px solid var(--pink);
-  font-size:14px;color:var(--text);
-  font-family:inherit;margin-bottom:14px;outline:none;
-  transition:border-color 0.2s,background 0.2s;
-  letter-spacing:0.5px;
-}
-#name-input::placeholder{color:#444}
-#name-input:focus{
-  background:rgba(255,0,100,0.06);
-  border-color:rgba(255,255,255,0.08);
-  border-bottom-color:var(--pink);
-  box-shadow:0 4px 16px rgba(255,0,100,0.15);
-}
+  /* === DANGER ZONE === */
+  #danger-zone {
+    position:absolute; bottom:0; left:0; right:0;
+    height:60px;
+    background: linear-gradient(0deg, rgba(255,0,110,0.15), transparent);
+    border-top:1px solid rgba(255,0,110,0.3);
+    pointer-events:none; z-index:15;
+  }
+  #danger-zone::before {
+    content:'DANGER ZONE';
+    position:absolute; top:4px; left:50%; transform:translateX(-50%);
+    font-family:'Orbitron',monospace; font-size:0.5rem;
+    color:rgba(255,0,110,0.5); letter-spacing:4px;
+  }
 
-.btn-main{
-  width:100%;padding:16px;
-  background:var(--pink);
-  color:white;border:none;
-  font-family:'Black Han Sans',sans-serif;
-  font-size:17px;letter-spacing:4px;
-  cursor:pointer;position:relative;overflow:hidden;
-  box-shadow:0 0 28px rgba(255,0,100,0.6),0 8px 24px rgba(0,0,0,0.4);
-  transition:transform 0.12s,box-shadow 0.12s;
-  text-transform:uppercase;
-  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
-}
-.btn-main::before{
-  content:'';position:absolute;top:0;left:-120%;
-  width:60%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
-  animation:shine 2.2s ease-in-out infinite;
-}
-.btn-main:active{transform:scale(0.97);box-shadow:0 0 14px rgba(255,0,100,0.4)}
+  /* === SCREENS === */
+  .screen {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    z-index:100;
+    background: radial-gradient(ellipse at center, rgba(0,10,50,0.95) 0%, rgba(4,1,15,0.98) 100%);
+  }
+  .screen h1 {
+    font-family:'Orbitron',monospace; font-size:3rem; font-weight:900;
+    margin-bottom:10px; letter-spacing:4px;
+  }
+  .screen p { color:rgba(255,255,255,0.6); font-size:0.9rem; margin-bottom:30px; }
 
-/* ══ QUIZ SCREEN ══ */
-#quiz-screen{max-width:430px}
+  .big-btn {
+    font-family:'Orbitron',monospace; font-size:1rem; font-weight:700;
+    padding:14px 40px; border:none; border-radius:6px;
+    cursor:pointer; letter-spacing:3px;
+    transition: all 0.25s;
+    position:relative; overflow:hidden;
+  }
+  .big-btn::before {
+    content:''; position:absolute; inset:0;
+    background:rgba(255,255,255,0.1);
+    transform:translateX(-100%);
+    transition:transform 0.3s;
+  }
+  .big-btn:hover::before { transform:translateX(0); }
 
-.progress-header{margin-bottom:10px;padding:0 1px}
-.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .btn-start {
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+    color:#fff;
+    box-shadow: 0 0 20px #ff006e88, 0 0 60px #ff006e33;
+    margin-bottom:12px;
+  }
+  .btn-start:hover { box-shadow: 0 0 30px #ff006e, 0 0 80px #ff006e55; transform:scale(1.04); }
 
-.cat-tag{
-  font-size:10px;font-weight:700;letter-spacing:2px;
-  padding:3px 10px;text-transform:uppercase;
-  border:1px solid currentColor;
-  clip-path:polygon(6px 0,100% 0,100% 100%,0 100%,0 6px);
-}
-.q-num{
-  font-family:'Black Han Sans',sans-serif;
-  color:var(--pink);font-size:14px;letter-spacing:2px;
-  text-shadow:0 0 10px rgba(255,0,100,0.5);
-}
+  .btn-secondary {
+    background: transparent;
+    color: var(--neon-cyan);
+    border:1px solid var(--neon-cyan);
+    box-shadow: var(--glow-cyan);
+    font-size:0.8rem; padding:10px 28px;
+  }
+  .btn-secondary:hover { background: rgba(0,245,255,0.15); }
 
-.prog-track{background:rgba(255,255,255,0.08);height:3px;position:relative}
-.prog-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--red),var(--pink),var(--pink2));
-  transition:width 0.55s ease;
-  box-shadow:0 0 10px var(--pink),0 0 20px rgba(255,0,100,0.4);
-  position:relative;
-}
-.prog-fill::after{
-  content:'';position:absolute;right:-1px;top:-2px;
-  width:4px;height:7px;background:white;
-  box-shadow:0 0 6px var(--pink);
-}
+  #start-screen h1 { color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
+  #start-screen .subtitle {
+    font-family:'Orbitron',monospace; font-size:0.8rem;
+    color: var(--neon-pink); letter-spacing:5px;
+    margin-bottom:20px;
+    text-shadow: var(--glow-pink);
+  }
 
-/* scene card */
-.scene-card{
-  overflow:hidden;
-  box-shadow:0 0 0 1px rgba(255,0,100,0.2),0 20px 48px rgba(0,0,0,0.6);
-  animation:slideUp 0.38s ease-out forwards;
-  position:relative;
-}
-.scene-header{padding:13px 15px 0}
+  .howto-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    margin-bottom:30px; max-width:400px;
+  }
+  .howto-item {
+    background:rgba(0,245,255,0.06);
+    border:1px solid rgba(0,245,255,0.2);
+    border-radius:8px; padding:10px;
+    font-size:0.75rem; color:rgba(255,255,255,0.7);
+    line-height:1.5;
+  }
+  .howto-item strong { color:var(--neon-cyan); display:block; margin-bottom:3px; font-size:0.8rem; }
 
-.scene-tag{
-  display:inline-flex;align-items:center;gap:5px;
-  background:rgba(255,0,100,0.18);
-  border:1px solid rgba(255,0,100,0.5);
-  padding:3px 10px;
-  font-size:10px;font-weight:700;color:var(--pink);
-  letter-spacing:2px;text-transform:uppercase;
-  margin-bottom:8px;
-  clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%);
-}
+  #gameover-screen h1 { color: var(--neon-pink); text-shadow: var(--glow-pink); }
+  #levelup-banner {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    z-index:90; pointer-events:none;
+    opacity:0;
+  }
+  #levelup-banner.show { animation: levelUpAnim 2s ease-out forwards; }
+  @keyframes levelUpAnim {
+    0% { opacity:0; transform:scale(0.5); }
+    20% { opacity:1; transform:scale(1.1); }
+    80% { opacity:1; transform:scale(1); }
+    100% { opacity:0; transform:scale(1); }
+  }
+  #levelup-banner h2 {
+    font-family:'Orbitron',monospace; font-size:3rem; font-weight:900;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 30px #ffea00, 0 0 80px #ffea0055;
+    letter-spacing:6px;
+  }
 
-.situation-text{font-size:12px;color:#999;margin-bottom:8px;line-height:1.6}
+  /* === MODAL === */
+  #modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.8);
+    z-index:200; display:none; align-items:center; justify-content:center;
+  }
+  #modal-overlay.open { display:flex; }
+  #modal {
+    background: var(--panel-bg);
+    border:1px solid rgba(0,245,255,0.4);
+    border-radius:12px;
+    padding:24px; width:500px; max-width:95vw; max-height:85vh;
+    overflow-y:auto;
+    box-shadow: 0 0 40px rgba(0,245,255,0.2);
+  }
+  #modal h2 {
+    font-family:'Orbitron',monospace; font-size:1rem;
+    color:var(--neon-cyan); margin-bottom:16px; letter-spacing:2px;
+  }
+  .vowel-tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+  .vtab {
+    padding:6px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.3);
+    background:transparent; color:rgba(255,255,255,0.6);
+    font-family:'Orbitron',monospace; font-size:0.8rem; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .vtab.active {
+    background:var(--neon-pink); border-color:var(--neon-pink);
+    color:#fff; box-shadow: var(--glow-pink);
+  }
+  .word-lists { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .word-list-box label {
+    font-size:0.7rem; color:rgba(255,255,255,0.5);
+    letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:6px;
+  }
+  .word-list-box textarea {
+    width:100%; height:120px;
+    background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2);
+    border-radius:6px; color:#fff; padding:8px;
+    font-size:0.8rem; font-family:'Exo 2',sans-serif;
+    resize:vertical;
+  }
+  .word-list-box textarea:focus { outline:none; border-color:var(--neon-cyan); }
+  .modal-btns { display:flex; justify-content:flex-end; gap:8px; }
+  .modal-btn {
+    font-family:'Orbitron',monospace; font-size:0.7rem;
+    padding:8px 20px; border-radius:6px; cursor:pointer;
+    letter-spacing:1px; border:none;
+  }
+  .modal-btn.save { background:var(--neon-cyan); color:#000; }
+  .modal-btn.cancel { background:transparent; border:1px solid rgba(255,255,255,0.3); color:#fff; }
+  .custom-input-row { display:flex; gap:8px; margin-bottom:10px; }
+  .custom-input-row input {
+    flex:1; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2);
+    border-radius:6px; color:#fff; padding:6px 10px;
+    font-family:'Exo 2',sans-serif; font-size:0.85rem;
+  }
+  .custom-input-row input:focus { outline:none; border-color:var(--neon-cyan); }
 
-.character-row{
-  display:flex;align-items:flex-end;gap:10px;
-  padding:0 15px 12px;min-height:60px;
-}
-.char-emoji{
-  font-size:40px;line-height:1;flex-shrink:0;
-  animation:bounce 2.2s ease-in-out infinite;
-  filter:drop-shadow(0 0 8px rgba(255,0,100,0.3));
-}
-.speech-bubble{
-  background:#0A0B10;
-  border:1.5px solid var(--pink);
-  padding:8px 12px;
-  font-size:12px;font-weight:700;color:var(--text);
-  box-shadow:0 0 20px rgba(255,0,100,0.25),inset 0 0 12px rgba(255,0,100,0.05);
-  max-width:calc(100% - 56px);line-height:1.5;
-  animation:bubblePop 0.42s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
-  clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
-  border-radius:0;
-}
+  /* === FLASH === */
+  #screen-flash {
+    position:fixed; inset:0; pointer-events:none; z-index:95;
+    opacity:0;
+  }
+  #screen-flash.flash-red { background:rgba(255,0,110,0.3); animation:flash 0.3s; }
+  #screen-flash.flash-green { background:rgba(57,255,20,0.2); animation:flash 0.3s; }
+  @keyframes flash { 0%{opacity:1} 100%{opacity:0} }
 
-.question-bar{
-  background:rgba(255,0,100,0.1);
-  border-top:1px solid rgba(255,0,100,0.3);
-  border-bottom:1px solid rgba(255,0,100,0.15);
-  padding:10px 15px;
-  position:relative;
-}
-.question-bar::before{
-  content:'Q';
-  position:absolute;left:15px;top:50%;transform:translateY(-50%);
-  font-family:'Black Han Sans',sans-serif;
-  font-size:9px;color:rgba(255,0,100,0.4);letter-spacing:1px;
-}
-.question-text{font-weight:900;font-size:13.5px;color:var(--text);padding-left:20px}
+  /* === BOSS HP BAR === */
+  #boss-bar {
+    display:none;
+    position:relative; z-index:10;
+    padding:4px 20px;
+    background:rgba(255,0,110,0.08);
+    border-bottom:1px solid rgba(255,0,110,0.3);
+  }
+  #boss-bar.show { display:block; }
+  #boss-label { font-family:'Orbitron',monospace; font-size:0.65rem; color:var(--neon-pink); letter-spacing:2px; margin-bottom:3px; }
+  #boss-hp-track { height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
+  #boss-hp-fill {
+    height:100%; width:100%;
+    background: linear-gradient(90deg, var(--neon-pink), var(--neon-yellow));
+    box-shadow: 0 0 10px var(--neon-pink);
+    border-radius:4px; transition:width 0.3s;
+  }
 
-.answers-list{padding:8px 8px 12px;display:flex;flex-direction:column;gap:6px;background:#0A0B10}
-
-.answer-btn{
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.1);
-  padding:11px 13px 11px 36px;
-  font-size:12px;font-weight:700;color:#bbb;
-  text-align:left;cursor:pointer;font-family:inherit;
-  transition:all 0.16s ease;
-  position:relative;overflow:hidden;
-  letter-spacing:0.3px;
-}
-.answer-btn .ans-num{
-  position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  font-family:'Black Han Sans',sans-serif;
-  font-size:10px;color:rgba(255,0,100,0.4);
-  transition:color 0.16s;
-}
-.answer-btn::after{
-  content:'';
-  position:absolute;left:0;top:0;bottom:0;width:0;
-  background:var(--pink);
-  transition:width 0.16s ease;
-  opacity:0.12;
-}
-.answer-btn:hover{
-  border-color:var(--pink);color:white;
-  background:rgba(255,0,100,0.08);
-  box-shadow:0 0 14px rgba(255,0,100,0.2),inset 1px 0 0 var(--pink);
-}
-.answer-btn:hover .ans-num{color:var(--pink)}
-.answer-btn:hover::after{width:100%}
-.answer-btn:active{transform:scale(0.99)}
-.answer-btn.selected{
-  background:var(--pink) !important;
-  border-color:var(--pink) !important;
-  color:white !important;
-  box-shadow:0 0 24px rgba(255,0,100,0.5) !important;
-}
-.answer-btn.selected .ans-num{color:rgba(255,255,255,0.7) !important}
-.answer-btn.selected::after{width:0}
-
-/* ══ RESULT ══ */
-#result-screen{text-align:center}
-
-.result-stamp{
-  font-family:'Black Han Sans',sans-serif;
-  font-size:9px;letter-spacing:5px;color:rgba(255,0,100,0.5);
-  margin-bottom:12px;text-transform:uppercase;
-  border:1px solid rgba(255,0,100,0.2);
-  display:inline-block;padding:3px 14px;
-}
-
-.result-emoji-big{
-  font-size:60px;display:block;margin-bottom:12px;
-  animation:bounce 1.6s ease-in-out infinite;
-  filter:drop-shadow(0 0 20px rgba(255,0,100,0.6));
-}
-
-.result-type-badge{
-  display:inline-block;
-  padding:8px 26px;margin-bottom:10px;
-  border:2px solid var(--pink);
-  background:linear-gradient(135deg,rgba(255,0,100,0.15),rgba(232,0,11,0.08));
-  box-shadow:0 0 24px rgba(255,0,100,0.35),inset 0 0 16px rgba(255,0,100,0.08);
-  position:relative;
-  clip-path:polygon(8px 0,100% 0,calc(100%-8px) 100%,0 100%);
-}
-.result-type-badge span{
-  font-family:'Black Han Sans',sans-serif;
-  font-size:30px;color:var(--pink);
-  letter-spacing:6px;
-  text-shadow:0 0 20px var(--pink),0 0 40px rgba(255,0,100,0.4);
-}
-
-.result-name{
-  font-family:'Black Han Sans',sans-serif;
-  font-size:19px;margin-bottom:6px;color:var(--text);
-  letter-spacing:1px;
-  text-shadow:0 0 12px rgba(255,255,255,0.15);
-}
-.result-desc{font-size:12px;color:#888;line-height:1.7;margin-bottom:18px}
-
-/* 스코어 박스 */
-.score-box{
-  background:rgba(0,0,0,0.3);
-  border:1px solid rgba(255,255,255,0.07);
-  padding:14px 14px;margin-bottom:14px;text-align:left;
-  position:relative;
-}
-.score-box::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--pink),transparent);
-}
-.score-title{
-  font-family:'Black Han Sans',sans-serif;
-  font-size:10px;color:var(--pink);letter-spacing:3px;
-  margin-bottom:12px;text-align:center;text-transform:uppercase;
-}
-.score-row{margin-bottom:10px}
-.score-row:last-child{margin-bottom:0}
-.score-labels{
-  display:flex;justify-content:space-between;
-  font-size:10px;font-weight:700;margin-bottom:4px;
-}
-.score-track{
-  background:rgba(255,255,255,0.07);
-  height:8px;position:relative;overflow:hidden;
-}
-
-/* 타입 그리드 */
-.type-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  gap:4px;margin-bottom:14px;
-}
-.type-cell{
-  padding:6px 3px;font-size:9px;text-align:center;
-  border:1px solid transparent;font-weight:700;
-  transition:all 0.2s;
-}
-.type-cell .tc-emoji{font-size:13px;display:block;margin-bottom:1px}
-
-/* ══ RESULT BUTTONS ══ */
-.result-actions{display:flex;flex-direction:column;gap:7px}
-
-.btn-action{
-  width:100%;padding:13px 16px;border:none;
-  font-size:13px;font-weight:900;cursor:pointer;
-  font-family:inherit;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:transform 0.12s,box-shadow 0.12s;
-  position:relative;overflow:hidden;
-  letter-spacing:1.5px;text-transform:uppercase;
-}
-.btn-action:active{transform:scale(0.97)}
-
-.btn-share-result{
-  background:var(--green);color:black;
-  box-shadow:0 0 24px rgba(0,200,83,0.5),0 6px 20px rgba(0,0,0,0.3);
-  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
-}
-.btn-share-result::before{
-  content:'';position:absolute;top:0;left:-120%;
-  width:60%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
-  animation:shine 2s ease-in-out infinite;
-}
-
-.btn-restart-action{
-  background:transparent;color:var(--muted);
-  border:1px solid rgba(255,255,255,0.15);
-  letter-spacing:2px;
-}
-.btn-restart-action:hover{border-color:rgba(255,255,255,0.3);color:var(--text)}
-
-/* ══ TOAST ══ */
-.toast{
-  position:fixed;bottom:22px;left:50%;
-  transform:translateX(-50%)translateY(18px);
-  background:var(--card);color:var(--text);
-  border:1px solid var(--pink);
-  padding:10px 20px;
-  font-size:12px;font-weight:700;
-  opacity:0;transition:all 0.25s ease;
-  pointer-events:none;z-index:9999;
-  white-space:nowrap;max-width:88vw;
-  box-shadow:0 0 24px rgba(255,0,100,0.35);
-  letter-spacing:1px;
-  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
-}
-.toast.show{opacity:1;transform:translateX(-50%)translateY(0)}
+  /* scrollbar */
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:rgba(0,245,255,0.4); border-radius:2px; }
 </style>
 </head>
 <body>
-<div class="scanline"></div>
 
-<!-- ══ INTRO ══ -->
-<div id="intro-screen" class="screen active">
-  <div class="card">
-    <div class="sq-emblem">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="40" cy="40" r="38" stroke="#FF0064" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
-        <circle cx="40" cy="40" r="30" stroke="#FF0064" stroke-width="1" opacity="0.3"/>
-        <polygon points="40,8 72,56 8,56" fill="none" stroke="#00C853" stroke-width="1.2" opacity="0.5"/>
-      </svg>
-      <div class="sq-emblem-icon">🎭</div>
+<canvas id="starfield"></canvas>
+<div id="screen-flash"></div>
+
+<!-- LEVEL UP BANNER -->
+<div id="levelup-banner">
+  <h2>LEVEL UP!</h2>
+  <div style="font-family:'Orbitron',monospace;color:var(--neon-cyan);font-size:1rem;letter-spacing:4px;margin-top:10px" id="levelup-sub"></div>
+</div>
+
+<!-- START SCREEN -->
+<div class="screen" id="start-screen">
+  <h1>VOWEL MONSTER</h1>
+  <div class="subtitle">BIGCAT ARCADE v2.0</div>
+  <p>모음이 있는 몬스터를 클릭하세요!</p>
+  <div class="howto-grid">
+    <div class="howto-item"><strong>🎯 타겟 클릭</strong>선택한 모음이 포함된 단어 몬스터를 클릭!</div>
+    <div class="howto-item"><strong>⚡ 콤보</strong>연속으로 맞히면 콤보 보너스 점수!</div>
+    <div class="howto-item"><strong>❌ 오답 주의</strong>잘못 클릭하면 생명이 줄어요</div>
+    <div class="howto-item"><strong>🔥 레벨업</strong>XP를 채우면 레벨업! 몬스터가 빨라져요</div>
+  </div>
+  <button class="big-btn btn-start" onclick="startGame()">▶ START GAME</button>
+  <button class="btn-secondary big-btn" onclick="openModal()">⚙ 단어 설정</button>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div class="screen" id="gameover-screen" style="display:none">
+  <h1>GAME OVER</h1>
+  <div style="font-family:'Orbitron',monospace;font-size:2rem;color:var(--neon-yellow);text-shadow:0 0 20px #ffea00;margin-bottom:4px" id="final-score">0</div>
+  <p id="final-msg">다시 도전해보세요!</p>
+  <div style="display:flex;gap:20px;margin-bottom:20px;font-family:'Orbitron',monospace;font-size:0.75rem;color:rgba(255,255,255,0.5)">
+    <span>레벨: <span id="final-level" style="color:var(--neon-cyan)">1</span></span>
+    <span>최대콤보: <span id="final-combo" style="color:var(--neon-pink)">0</span></span>
+    <span>정확도: <span id="final-acc" style="color:var(--neon-green)">0%</span></span>
+  </div>
+  <button class="big-btn btn-start" onclick="startGame()">▶ RETRY</button>
+  <button class="btn-secondary big-btn" style="margin-top:10px" onclick="showStart()">◀ MENU</button>
+</div>
+
+<!-- HEADER -->
+<div id="header">
+  <div id="title">VOWEL<span>MONSTER</span></div>
+  <div id="score-panel">
+    <div class="stat-block">
+      <div class="stat-label">Score</div>
+      <div class="stat-value" id="score-val">0</div>
     </div>
-
-    <p class="intro-label">MBTI PERSONALITY TEST</p>
-    <h1>나는 어떤<br><em>플레이어</em>일까?</h1>
-    <p class="intro-sub">20개의 상황 속에서 당신의 선택이<br>당신이 누구인지 말해줍니다</p>
-
-    <div class="cat-panel">
-      <div class="cat-item" style="color:#FF0064">⚡ 에너지 방향 5</div>
-      <div class="cat-item" style="color:#845EF7">🔍 정보 수집 5</div>
-      <div class="cat-item" style="color:#00B8FF">💭 결정 방식 5</div>
-      <div class="cat-item" style="color:#00C853">📅 생활 방식 5</div>
+    <div id="combo-display">x<span id="combo-num">0</span> COMBO!</div>
+    <div class="stat-block">
+      <div class="stat-label">Level</div>
+      <div class="stat-value" id="level-val">1</div>
     </div>
-
-    <p class="rule-text">TOTAL 20 QUESTIONS · APPROX 5 MIN</p>
-    <input type="text" id="name-input" placeholder="플레이어 이름 입력 (선택)" maxlength="10" autocomplete="off">
-    <button class="btn-main" onclick="startQuiz()">▶ 게임 시작</button>
+  </div>
+  <div id="lives-panel">
+    <div class="heart" id="h1">❤️</div>
+    <div class="heart" id="h2">❤️</div>
+    <div class="heart" id="h3">❤️</div>
+  </div>
+  <div id="header-btns">
+    <button class="hdr-btn" id="bgm-btn" onclick="toggleBGM()">🔊 BGM</button>
+    <button class="hdr-btn" onclick="openModal()">⚙ 설정</button>
   </div>
 </div>
 
-<!-- ══ QUIZ ══ -->
-<div id="quiz-screen" class="screen">
-  <div class="progress-header">
-    <div class="progress-top">
-      <span class="cat-tag" id="cat-tag">⚡ 에너지 방향</span>
-      <span class="q-num" id="q-counter">01 / 20</span>
-    </div>
-    <div class="prog-track">
-      <div class="prog-fill" id="progress-fill" style="width:0%"></div>
-    </div>
-  </div>
-
-  <div class="scene-card" id="scene-card">
-    <div class="scene-header">
-      <div class="scene-tag" id="scene-tag">📍 상황</div>
-      <p class="situation-text" id="situation-text"></p>
-    </div>
-    <div class="character-row">
-      <div class="char-emoji" id="char-emoji">🧒</div>
-      <div class="speech-bubble" id="speech-bubble"></div>
-    </div>
-    <div class="question-bar">
-      <p class="question-text" id="question-text"></p>
-    </div>
-    <div class="answers-list" id="answers-list"></div>
-  </div>
+<!-- XP / LEVEL BAR -->
+<div id="level-badge">
+  <div id="level-text">LV.1</div>
+  <div id="xp-bar-wrap"><div id="xp-bar"></div></div>
+  <div id="target-vowel-display">TARGET: A</div>
 </div>
 
-<!-- ══ RESULT ══ -->
-<div id="result-screen" class="screen">
-  <div class="card">
-    <div class="result-stamp">▣ FINAL RESULT ▣</div>
-    <span class="result-emoji-big" id="result-emoji">🦉</span>
-    <div class="result-type-badge" id="result-badge">
-      <span id="result-type-text">ISTJ</span>
+<!-- BOSS HP -->
+<div id="boss-bar">
+  <div id="boss-label">⚠ BOSS WAVE</div>
+  <div id="boss-hp-track"><div id="boss-hp-fill"></div></div>
+</div>
+
+<!-- GAME AREA -->
+<div id="game-area">
+  <div id="danger-zone"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <h2>⚙ 단어 & 모음 설정</h2>
+    <div style="margin-bottom:10px;font-size:0.75rem;color:rgba(255,255,255,0.5)">타겟 모음 선택:</div>
+    <div class="vowel-tabs" id="vowel-tabs">
+      <button class="vtab active" data-v="A">A</button>
+      <button class="vtab" data-v="E">E</button>
+      <button class="vtab" data-v="I">I</button>
+      <button class="vtab" data-v="O">O</button>
+      <button class="vtab" data-v="U">U</button>
+      <button class="vtab" data-v="CUSTOM">커스텀</button>
     </div>
-    <h2 class="result-name" id="result-name">신뢰의 올빼미</h2>
-    <p class="result-desc" id="result-desc"></p>
-
-    <div class="score-box">
-      <p class="score-title">◈ 성향 분석 ◈</p>
-      <div id="score-rows"></div>
+    <div id="custom-row" class="custom-input-row" style="display:none">
+      <input type="text" id="custom-vowel-input" placeholder="모음 입력 (예: AE, OI)" maxlength="10">
     </div>
-
-    <div class="type-grid" id="type-grid"></div>
-
-    <div class="result-actions">
-      <button class="btn-action btn-share-result" id="btn-share" onclick="shareResult()">🔗 결과 공유하기</button>
-      <button class="btn-action btn-restart-action" onclick="restart()">↺ 다시 도전하기</button>
+    <div class="word-lists">
+      <div class="word-list-box">
+        <label>✅ 타겟 단어 (모음 포함)</label>
+        <textarea id="target-words-area" placeholder="단어를 줄바꿈으로 구분하여 입력"></textarea>
+      </div>
+      <div class="word-list-box">
+        <label>❌ 기타 단어 (모음 없음)</label>
+        <textarea id="other-words-area" placeholder="단어를 줄바꿈으로 구분하여 입력"></textarea>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeModal()">닫기</button>
+      <button class="modal-btn save" onclick="saveSettings()">저장</button>
     </div>
   </div>
 </div>
-
-<!-- 토스트 -->
-<div class="toast" id="toast"></div>
 
 <script>
-const questions = [
-
-  // ══ E/I : 에너지 방향 (학교·가정·혼자·또래) ══════════════════
-  {
-    id:1, category:"EI", scene:"playground", character:"쉬는 시간",
-    situation:"수업이 끝나고 10분 쉬는 시간이 됐어요. 오늘은 특별히 피곤한 날이에요.",
-    question:"지금 가장 하고 싶은 게 뭐야?",
-    bubble:"야, 쉬는 시간이다! 뭐 할 거야?", emoji:"⏰",
-    answers:[
-      {text:"🗣️ 친구들이랑 큰 소리로 떠들며 놀아야 기운이 나!",type:"E"},
-      {text:"🏃 밖에 나가서 몸 쓰며 놀아야 스트레스가 풀려!",type:"E"},
-      {text:"📱 혼자 조용히 앉아서 내 것 하며 쉬어야 해",type:"I"},
-      {text:"😌 아무도 말 걸지 않는 구석에서 멍 때려야 충전돼",type:"I"}
-    ]
-  },
-  {
-    id:2, category:"EI", scene:"home", character:"집에서",
-    situation:"학교 끝나고 집에 왔는데 엄마가 '친구 데려와서 같이 놀아도 돼'라고 했어요.",
-    question:"나는 어떻게 하고 싶어?",
-    bubble:"친구 데려와서 같이 놀아도 돼~", emoji:"🏠",
-    answers:[
-      {text:"📞 바로 단톡방에 '우리 집 와!' 하고 연락해",type:"E"},
-      {text:"🎮 혼자 게임하다가 재밌으면 친구 불러야지",type:"E"},
-      {text:"📚 오늘은 그냥 혼자 조용히 보내고 싶어",type:"I"},
-      {text:"🛌 혼자만의 시간이 더 편해, 친구 부르면 피곤해",type:"I"}
-    ]
-  },
-  {
-    id:3, category:"EI", scene:"classroom", character:"모둠 발표",
-    situation:"선생님이 모둠별로 발표 준비를 하라고 했어요. 발표 방법은 모둠이 자유롭게 정해요.",
-    question:"발표 준비할 때 나는?",
-    bubble:"모둠끼리 자유롭게 준비해보세요!", emoji:"📢",
-    answers:[
-      {text:"🎤 내가 직접 앞에서 발표하고 싶어!",type:"E"},
-      {text:"💬 토론하면서 아이디어 내는 게 제일 재밌어",type:"E"},
-      {text:"📝 자료 조사나 ppt 만드는 역할이 더 편해",type:"I"},
-      {text:"🤫 발표보다 뒤에서 준비하는 게 훨씬 좋아",type:"I"}
-    ]
-  },
-  {
-    id:4, category:"EI", scene:"alone", character:"혼자 있을 때",
-    situation:"주말에 온종일 혼자 있게 됐어요. 아무 계획도 없고 자유로운 하루예요.",
-    question:"이 상황이 어떻게 느껴져?",
-    bubble:"오늘 하루 혼자야, 뭐든 마음대로 해!", emoji:"🌤️",
-    answers:[
-      {text:"😟 금방 심심하고 외로워서 누군가 부르고 싶어",type:"E"},
-      {text:"📲 SNS 하거나 친구들한테 연락하면서 보내",type:"E"},
-      {text:"😊 드디어! 혼자만의 시간이 생겨서 너무 좋아",type:"I"},
-      {text:"🎨 책 읽고 그림 그리고... 혼자도 시간이 모자라",type:"I"}
-    ]
-  },
-  {
-    id:5, category:"EI", scene:"conflict", character:"갈등 상황",
-    situation:"친구와 말다툼을 해서 서로 감정이 상했어요. 나는 지금 많이 속상해요.",
-    question:"이럴 때 나는 어떻게 해?",
-    bubble:"우리 왜 싸우고 있는 거야...😔", emoji:"😤",
-    answers:[
-      {text:"📞 바로 전화해서 다 털어놓고 해결해야 해",type:"E"},
-      {text:"🗣️ 직접 만나서 얘기하면 금방 풀릴 것 같아",type:"E"},
-      {text:"✍️ 혼자 일기 쓰면서 감정 정리부터 해",type:"I"},
-      {text:"🛏️ 혼자 있으면서 충분히 생각한 다음에 연락해",type:"I"}
-    ]
-  },
-
-  // ══ S/N : 정보 수집 방식 (학교·가정·혼자·또래) ══════════════
-  {
-    id:6, category:"SN", scene:"classroom", character:"새 단원",
-    situation:"수학 시간에 완전히 새로운 단원이 시작됐어요. 선생님이 개념을 설명하고 있어요.",
-    question:"나는 어떻게 공부해야 이해가 잘 돼?",
-    bubble:"오늘부터 새로운 단원 시작합니다!", emoji:"🔢",
-    answers:[
-      {text:"📐 예제 문제를 하나씩 풀면서 직접 익혀야 해",type:"S"},
-      {text:"📋 공식이랑 규칙을 먼저 외우는 게 빠르게 이해돼",type:"S"},
-      {text:"🌐 '왜 이게 필요하지?' 원리부터 이해해야 머릿속에 남아",type:"N"},
-      {text:"🔗 다른 과목이나 실생활이랑 연결해서 생각해야 재밌어",type:"N"}
-    ]
-  },
-  {
-    id:7, category:"SN", scene:"home", character:"진로 탐색",
-    situation:"부모님이 '커서 뭐가 되고 싶어?' 하고 물어봤어요.",
-    question:"나의 반응은?",
-    bubble:"너는 커서 뭐가 되고 싶어?", emoji:"🏠",
-    answers:[
-      {text:"🏃 운동선수, 요리사 등 몸으로 직접 하는 일이 좋아",type:"S"},
-      {text:"🔧 실제로 무언가를 만들거나 고치는 직업이 좋아",type:"S"},
-      {text:"🚀 아직 없는 새로운 직업을 만들고 싶어",type:"N"},
-      {text:"🌍 사회 문제를 해결하거나 세상을 바꾸고 싶어",type:"N"}
-    ]
-  },
-  {
-    id:8, category:"SN", scene:"alone", character:"자유 시간",
-    situation:"혼자 자유 시간이 생겼어요. 아무것도 안 해도 되는 시간이에요.",
-    question:"자연스럽게 뭘 하게 돼?",
-    bubble:"자유 시간이야, 뭐든 해도 돼!", emoji:"⭐",
-    answers:[
-      {text:"📺 좋아하는 영상 보거나 평소에 즐기던 것 해",type:"S"},
-      {text:"🎮 친숙한 게임이나 익숙한 취미 활동을 해",type:"S"},
-      {text:"💭 멍하니 있다가 갑자기 새로운 아이디어가 떠올라",type:"N"},
-      {text:"🗒️ 해보고 싶은 것들을 리스트로 만들거나 계획 세워",type:"N"}
-    ]
-  },
-  {
-    id:9, category:"SN", scene:"science", character:"과학 토론",
-    situation:"과학 시간에 '인공지능이 사람의 일을 다 대신하면 어떻게 될까?' 라는 토론 주제가 나왔어요.",
-    question:"나는 어떤 의견이 먼저 떠올라?",
-    bubble:"인공지능이 모든 일을 한다면?🤖", emoji:"🔬",
-    answers:[
-      {text:"📊 실제 통계나 사례를 찾아서 근거 있게 말하고 싶어",type:"S"},
-      {text:"⚠️ 당장 없어질 직업이 뭔지부터 생각해",type:"S"},
-      {text:"🌱 새로운 직업이 생겨나고 인간만의 역할이 달라질 것 같아",type:"N"},
-      {text:"🎭 인공지능과 인간이 어떻게 공존할지 미래를 상상해",type:"N"}
-    ]
-  },
-  {
-    id:10, category:"SN", scene:"project", character:"모둠 과제",
-    situation:"모둠 과제 주제를 자유롭게 정할 수 있어요. 모둠원과 의논하는 중이에요.",
-    question:"나는 어떤 주제를 선호해?",
-    bubble:"우리 모둠 주제 뭐로 할까?", emoji:"📋",
-    answers:[
-      {text:"📰 실제 사건이나 우리 주변 이야기를 다루고 싶어",type:"S"},
-      {text:"🧪 직접 실험하거나 조사할 수 있는 주제가 좋아",type:"S"},
-      {text:"🔭 아직 답이 없는 미스터리한 주제를 탐구하고 싶어",type:"N"},
-      {text:"💡 전혀 새로운 시각으로 접근하는 창의적 주제가 좋아",type:"N"}
-    ]
-  },
-
-  // ══ T/F : 결정 방식 (학교·가정·또래·혼자) ══════════════════
-  {
-    id:11, category:"TF", scene:"conflict", character:"친구 고민",
-    situation:"친한 친구가 울면서 '선생님한테 억울하게 혼났어, 어떡하지?' 하고 털어놨어요.",
-    question:"나는 어떻게 반응해?",
-    bubble:"나 억울하게 혼났어... 어떡하지?😢", emoji:"😭",
-    answers:[
-      {text:"🧩 상황을 정확히 파악해서 '이렇게 해결하자'고 말해줘",type:"T"},
-      {text:"📋 억울한 점을 정리해서 선생님께 말씀드리자고 해",type:"T"},
-      {text:"🤗 '많이 속상했겠다' 하며 감정을 먼저 받아줘",type:"F"},
-      {text:"💕 옆에 그냥 있어줘, 혼자 두고 싶지 않아",type:"F"}
-    ]
-  },
-  {
-    id:12, category:"TF", scene:"home", character:"가족 갈등",
-    situation:"동생이 내 물건을 허락 없이 썼어요. 물건이 망가지지는 않았지만 화가 났어요.",
-    question:"나는 어떻게 해?",
-    bubble:"야! 내 꺼 왜 마음대로 써?!", emoji:"😠",
-    answers:[
-      {text:"📏 '앞으로는 꼭 물어보고 써야 해'라고 규칙을 정해",type:"T"},
-      {text:"⚖️ 왜 잘못인지 논리적으로 설명해줘",type:"T"},
-      {text:"😢 '허락 안 받고 쓰면 나 진짜 상처받아'라고 솔직히 말해",type:"F"},
-      {text:"😤 너무 화나서 그냥 방에 들어가서 혼자 있어",type:"F"}
-    ]
-  },
-  {
-    id:13, category:"TF", scene:"classroom", character:"단체 결정",
-    situation:"학급 회의에서 체험학습 장소를 놓고 의견이 갈렸어요. 내가 원하는 곳과 다수 의견이 달라요.",
-    question:"나는 어떻게 해?",
-    bubble:"체험학습 어디로 갈까요? 투표해요!", emoji:"🗳️",
-    answers:[
-      {text:"📊 각 장소의 장단점을 정리해서 논리적으로 설득해",type:"T"},
-      {text:"🤝 다수 의견이 더 합리적이면 깔끔하게 따라",type:"T"},
-      {text:"😔 내가 원하는 곳이 안 되면 많이 실망스러워",type:"F"},
-      {text:"👥 다들 좋아하는 곳이라면 나도 함께 기뻐할 수 있어",type:"F"}
-    ]
-  },
-  {
-    id:14, category:"TF", scene:"alone", character:"미래 고민",
-    situation:"혼자 조용히 있다가 '나는 어떤 사람이 되고 싶을까?' 하는 생각이 들었어요.",
-    question:"이런 생각이 들 때 나는?",
-    bubble:"나는 어떤 사람이 되고 싶을까...🌙", emoji:"🌙",
-    answers:[
-      {text:"🎯 목표를 세우고 그걸 이루기 위한 계획을 생각해",type:"T"},
-      {text:"📈 잘할 수 있는 것과 부족한 것을 냉정하게 분석해",type:"T"},
-      {text:"❤️ 주변 사람들이 나를 어떻게 기억해줬으면 하는지 떠올려",type:"F"},
-      {text:"🌈 내가 진짜 행복한 삶이 어떤 건지 느낌으로 그려봐",type:"F"}
-    ]
-  },
-  {
-    id:15, category:"TF", scene:"playground", character:"불공평한 상황",
-    situation:"체육 대회에서 심판이 잘못된 판정을 내렸어요. 우리 팀이 억울하게 졌어요.",
-    question:"나는 어떻게 반응해?",
-    bubble:"그 판정은 명백히 잘못된 거야!", emoji:"🏅",
-    answers:[
-      {text:"📣 근거를 들어 항의해야 해, 잘못된 건 바로잡아야 해",type:"T"},
-      {text:"📝 규칙을 다시 확인하고 재심을 요청해",type:"T"},
-      {text:"😢 팀원들이 얼마나 열심히 했는데... 너무 속상해",type:"F"},
-      {text:"🤗 팀원들 위로하는 게 먼저야, 결과보다 마음이 중요해",type:"F"}
-    ]
-  },
-
-  // ══ J/P : 생활 방식 (학교·가정·혼자·또래) ══════════════════
-  {
-    id:16, category:"JP", scene:"homework", character:"시험 준비",
-    situation:"2주 후에 중요한 시험이 있어요. 범위가 꽤 넓어요.",
-    question:"나는 어떻게 준비해?",
-    bubble:"2주 뒤에 중간고사예요, 준비하세요!", emoji:"📝",
-    answers:[
-      {text:"📅 오늘 바로 날짜별 공부 계획표를 짜",type:"J"},
-      {text:"✅ 단원별로 끝낼 때마다 체크하면서 진행해",type:"J"},
-      {text:"🎯 시험 전날 집중적으로 몰아서 해도 잘 돼",type:"P"},
-      {text:"📖 그때그때 하고 싶은 과목 먼저 하는 게 더 잘 돼",type:"P"}
-    ]
-  },
-  {
-    id:17, category:"JP", scene:"home", character:"방 정리",
-    situation:"엄마가 '주말에 방 한번 정리해'라고 했어요.",
-    question:"나는 어떻게 해?",
-    bubble:"이번 주말에 방 좀 정리해줘~", emoji:"🧹",
-    answers:[
-      {text:"🗂️ 어디서부터 할지 순서를 정하고 완전히 끝내",type:"J"},
-      {text:"🧺 '이건 여기, 저건 저기' 자리를 확실히 정해놔",type:"J"},
-      {text:"🎵 음악 틀면서 기분 내킬 때 조금씩 해",type:"P"},
-      {text:"🤷 일단 눈에 보이는 것들만 치우고 나중에 또 해",type:"P"}
-    ]
-  },
-  {
-    id:18, category:"JP", scene:"playground", character:"주말 약속",
-    situation:"친구들과 이번 주말에 놀기로 했어요. 장소와 시간을 정해야 해요.",
-    question:"나는 어떻게 하고 싶어?",
-    bubble:"이번 주말에 뭐 할 거야? 같이 놀자!", emoji:"🎉",
-    answers:[
-      {text:"📍 '몇 시에 어디서 만나자'고 미리 딱 정해야 해",type:"J"},
-      {text:"🗒️ 갈 수 있는 곳 목록 만들어서 일찍 결정해",type:"J"},
-      {text:"😄 '일단 만나서 정하자~' 가 더 신나고 좋아",type:"P"},
-      {text:"🌀 즉흥적으로 끌리는 대로 움직이는 게 재밌어",type:"P"}
-    ]
-  },
-  {
-    id:19, category:"JP", scene:"alone", character:"갑작스러운 변화",
-    situation:"내일 하루 종일 나만의 계획을 세워뒀는데 갑자기 모두 취소됐어요.",
-    question:"나의 반응은?",
-    bubble:"내일 계획이 전부 취소됐어요!", emoji:"🌧️",
-    answers:[
-      {text:"😤 계획이 틀어지니까 꽤 스트레스 받고 짜증나",type:"J"},
-      {text:"📅 바로 새로운 계획을 다시 세워야 마음이 편해",type:"J"},
-      {text:"🎲 오히려 좋아! 뭔가 새로운 게 생길 것 같아 기대돼",type:"P"},
-      {text:"😊 그냥 흐름대로 살면 되지, 별로 신경 안 써",type:"P"}
-    ]
-  },
-  {
-    id:20, category:"JP", scene:"project", character:"장기 프로젝트",
-    situation:"한 달 동안 자유 주제로 개인 프로젝트를 해야 해요. 완전히 스스로 진행해요.",
-    question:"나는 어떻게 접근해?",
-    bubble:"한 달간 자유 프로젝트를 진행하세요!", emoji:"🚀",
-    answers:[
-      {text:"📊 첫날에 전체 일정과 마감 기준을 명확히 정해",type:"J"},
-      {text:"🎯 단계별로 목표를 세우고 차근차근 완성해가",type:"J"},
-      {text:"💡 일단 흥미로운 것부터 탐색하면서 방향을 잡아가",type:"P"},
-      {text:"🌊 마지막까지 열려있게 두면서 영감이 올 때 집중해",type:"P"}
-    ]
-  }
-];
-
-const categoryInfo = {
-  EI: { name:"에너지 방향", icon:"⚡", color:"#FF0064", bg:"rgba(255,0,100,0.15)" },
-  SN: { name:"정보 수집",  icon:"🔍", color:"#845EF7", bg:"rgba(132,94,247,0.15)" },
-  TF: { name:"결정 방식",  icon:"💭", color:"#00B8FF", bg:"rgba(0,184,255,0.15)" },
-  JP: { name:"생활 방식",  icon:"📅", color:"#00B84C", bg:"rgba(0,184,76,0.15)" }
+// ===========================
+//  GAME STATE
+// ===========================
+const STATE = {
+  score: 0, lives: 3, level: 1, xp: 0, xpNeeded: 100,
+  combo: 0, maxCombo: 0,
+  totalClicks: 0, correctClicks: 0,
+  running: false, paused: false,
+  bgmOn: false, bgmStarted: false,
+  targetVowel: 'A',
+  monsters: [],
+  spawnInterval: null,
+  dropSpeed: 0.4,
+  bossActive: false, bossHP: 0, bossMaxHP: 0,
 };
 
-const sceneBgs = {
-  classroom:   "linear-gradient(145deg,#1A0A1E,#220D14)",
-  playground:  "linear-gradient(145deg,#0A1A0E,#0D220F)",
-  lunch:       "linear-gradient(145deg,#1A0E0A,#22130D)",
-  presentation:"linear-gradient(145deg,#0A0E1A,#0D1222)",
-  art:         "linear-gradient(145deg,#1A0A14,#220D18)",
-  science:     "linear-gradient(145deg,#0A141A,#0D1A22)",
-  conflict:    "linear-gradient(145deg,#1A0A0A,#220D0D)",
-  choice:      "linear-gradient(145deg,#12081A,#180D22)",
-  homework:    "linear-gradient(145deg,#0A0E1A,#0E1222)",
-  project:     "linear-gradient(145deg,#0A1A12,#0D2218)",
-  home:        "linear-gradient(145deg,#1A0E14,#22121A)",
-  alone:       "linear-gradient(145deg,#080A1A,#0A0D22)"
-};
+// Default words
+let targetWords = ['apple','ant','axe','add','ace','aim','age','ape','art','arm','are','ask','at','as','an','am','all','and','any','act','air','able','also','away','again','after','always','already','around','above','among','agree','along','ahead','alive','alone','allow','alarm','angel','angle','align','adapt','admit','adopt','agent','amber'];
+let otherWords = ['gym','cry','fly','try','myth','glyph','sync','lynx','crypt','nymph','sky','spy','type','byte','style','clue','blue','true','clown','brown','grow','show','flow','blow','snow','know','throw','gloom','proof','bloom','spook','stood','floor','floor'];
 
-const mbti = {
-  ISTJ:{emoji:"🦉",name:"신뢰의 올빼미",  desc:"책임감이 강하고 꼼꼼해요. 약속을 꼭 지키는 믿음직한 친구!",color:"#4A90D9"},
-  ISFJ:{emoji:"🐰",name:"따뜻한 토끼",    desc:"친구를 잘 챙겨주는 다정한 마음씨를 가졌어요!",color:"#F472B6"},
-  INFJ:{emoji:"🦋",name:"꿈꾸는 나비",    desc:"깊이 생각하고 남다른 아이디어를 가진 특별한 친구!",color:"#7C3AED"},
-  INTJ:{emoji:"🦅",name:"계획의 독수리",  desc:"목표를 세우고 똑똑하게 이루어내는 전략가예요!",color:"#1E40AF"},
-  ISTP:{emoji:"🐺",name:"탐험하는 늑대",  desc:"호기심이 많고 손으로 직접 해보는 걸 좋아해요!",color:"#065F46"},
-  ISFP:{emoji:"🦊",name:"감성 여우",      desc:"예술적 감각이 있고 자유롭게 자기를 표현해요!",color:"#B45309"},
-  INFP:{emoji:"🦄",name:"상상의 유니콘",  desc:"꿈과 상상력이 넘치고 마음이 따뜻한 몽상가!",color:"#9333EA"},
-  INTP:{emoji:"🐙",name:"생각하는 문어",  desc:"아이디어가 넘치고 복잡한 문제 풀기를 좋아해요!",color:"#0891B2"},
-  ESTP:{emoji:"🐯",name:"활발한 호랑이",  desc:"에너지 넘치고 새로운 도전을 두려워하지 않아요!",color:"#DC2626"},
-  ESFP:{emoji:"🦜",name:"신나는 앵무새",  desc:"언제나 밝고 재밌는 분위기 메이커예요!",color:"#EA580C"},
-  ENFP:{emoji:"🐬",name:"자유로운 돌고래",desc:"창의적이고 어디서나 친구를 사귀는 사교왕!",color:"#0284C7"},
-  ENTP:{emoji:"🦁",name:"도전하는 사자",  desc:"새로운 아이디어로 세상을 바꾸고 싶은 발명가!",color:"#CA8A04"},
-  ESTJ:{emoji:"🐻",name:"든든한 곰",      desc:"규칙을 잘 지키고 모둠을 이끄는 리더예요!",color:"#7C2D12"},
-  ESFJ:{emoji:"🐕",name:"친절한 강아지",  desc:"모두를 챙기고 함께하는 걸 좋아하는 인기쟁이!",color:"#BE185D"},
-  ENFJ:{emoji:"🦒",name:"이끄는 기린",    desc:"친구들에게 영감을 주고 함께 성장하는 리더!",color:"#15803D"},
-  ENTJ:{emoji:"👑",name:"당당한 사자왕",  desc:"큰 꿈을 가지고 목표를 향해 달려가는 대장!",color:"#B91C1C"}
-};
+// ===========================
+//  AUDIO ENGINE
+// ===========================
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, type='square', duration=0.1, vol=0.15, detune=0) {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type; osc.frequency.value = freq;
+    if(detune) osc.detune.value = detune;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start(); osc.stop(ctx.currentTime + duration);
+  } catch(e){}
+}
+function sfxHit() {
+  playTone(523, 'square', 0.08, 0.2);
+  setTimeout(()=>playTone(659,'square',0.08,0.15),60);
+  setTimeout(()=>playTone(784,'square',0.1,0.1),120);
+}
+function sfxWrong() {
+  playTone(200,'sawtooth',0.15,0.2);
+  setTimeout(()=>playTone(150,'sawtooth',0.1,0.15),80);
+}
+function sfxLevelUp() {
+  [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'triangle',0.2,0.2),i*100));
+}
+function sfxCombo() { playTone(880,'triangle',0.1,0.2,-100); }
+function sfxEscape() { playTone(300,'sawtooth',0.12,0.15); }
 
-// State
-let state = { q: 0, scores: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, userName:"", result:"", animating:false };
-
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
+// BGM
+let bgmInterval;
+const bgmNotes = [130,146,164,174,196,220,246,261];
+function startBGM() {
+  if(STATE.bgmStarted) return;
+  STATE.bgmStarted = true;
+  let i=0;
+  bgmInterval = setInterval(()=>{
+    if(!STATE.bgmOn) return;
+    playTone(bgmNotes[i%bgmNotes.length],'triangle',0.3,0.06);
+    playTone(bgmNotes[(i+4)%bgmNotes.length],'triangle',0.3,0.04,700);
+    i++;
+  }, 400);
+}
+function toggleBGM() {
+  STATE.bgmOn = !STATE.bgmOn;
+  document.getElementById('bgm-btn').textContent = STATE.bgmOn ? '🔊 BGM' : '🔇 BGM';
+  if(STATE.bgmOn) { getAudioCtx(); startBGM(); }
 }
 
-function startQuiz() {
-  state.userName = document.getElementById('name-input').value.trim();
-  state.q = 0;
-  state.scores = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
-  renderQuestion();
-  show('quiz-screen');
+// ===========================
+//  STARFIELD
+// ===========================
+const canvas = document.getElementById('starfield');
+const sctx = canvas.getContext('2d');
+let stars = [];
+function initStars() {
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  stars = Array.from({length:120},()=>({
+    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+    r: Math.random()*1.5+0.3, speed: Math.random()*0.3+0.05,
+    alpha: Math.random()*0.8+0.2
+  }));
 }
-
-function renderQuestion() {
-  const q = questions[state.q];
-  const cat = categoryInfo[q.category];
-
-  // Progress
-  document.getElementById('progress-fill').style.width = (state.q / questions.length * 100) + '%';
-  document.getElementById('q-counter').textContent = String(state.q+1).padStart(2,'0') + ' / ' + String(questions.length).padStart(2,'0');
-
-  // Cat tag
-  const tag = document.getElementById('cat-tag');
-  tag.textContent = cat.icon + ' ' + cat.name;
-  tag.style.background = cat.bg;
-  tag.style.color = cat.color;
-
-  // Scene card bg
-  document.getElementById('scene-card').style.background = sceneBgs[q.scene] || '#fff';
-
-  // Content
-  document.getElementById('scene-tag').textContent = '📍 ' + q.character;
-  document.getElementById('situation-text').textContent = q.situation;
-  document.getElementById('char-emoji').textContent = q.emoji;
-  document.getElementById('question-text').textContent = '💭 ' + q.question;
-
-  // Bubble animation
-  const bubble = document.getElementById('speech-bubble');
-  bubble.style.animation = 'none';
-  bubble.textContent = q.bubble;
-  setTimeout(() => { bubble.style.animation = ''; }, 50);
-
-  // Answers
-  const list = document.getElementById('answers-list');
-  list.innerHTML = '';
-  q.answers.forEach((ans, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'answer-btn';
-    const numSpan = document.createElement('span');
-    numSpan.className = 'ans-num';
-    numSpan.textContent = String(i+1).padStart(2,'0');
-    btn.appendChild(numSpan);
-    btn.appendChild(document.createTextNode(ans.text));
-    btn.style.animationDelay = (i * 0.07) + 's';
-    btn.style.animation = 'revealRow 0.28s ease-out both';
-    btn.style.animationDelay = (i * 0.06) + 's';
-    btn.onclick = () => pickAnswer(ans, btn, cat.color);
-    list.appendChild(btn);
+function animateStars() {
+  sctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    sctx.beginPath();
+    sctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sctx.fillStyle=`rgba(200,220,255,${s.alpha})`;
+    sctx.fill();
+    s.y += s.speed;
+    if(s.y > canvas.height) { s.y=0; s.x=Math.random()*canvas.width; }
   });
+  requestAnimationFrame(animateStars);
+}
+initStars(); animateStars();
+window.addEventListener('resize',initStars);
 
-  // Re-trigger slide animation
-  const card = document.getElementById('scene-card');
-  card.style.animation = 'none';
-  void card.offsetWidth;
-  card.style.animation = 'slideIn 0.45s ease-out forwards';
+// ===========================
+//  GAME AREA SIZING
+// ===========================
+function resizeGameArea() {
+  const header = document.getElementById('header').offsetHeight;
+  const levelBadge = document.getElementById('level-badge').offsetHeight;
+  const bossBar = document.getElementById('boss-bar').offsetHeight;
+  const ga = document.getElementById('game-area');
+  ga.style.height = (window.innerHeight - header - levelBadge - bossBar) + 'px';
+}
+window.addEventListener('resize', resizeGameArea);
+
+// ===========================
+//  MONSTER EMOJIS
+// ===========================
+const MONSTER_EMOJIS = {
+  1: ['👾','👻','🤖','👽','🎃'],
+  2: ['🦖','🦕','🐲','🦑','🦈'],
+  3: ['🌋','👁️','🔥','💀','🧿'],
+  boss: ['🐉','👿','💥','⚡','🌊']
+};
+function getEmoji(level, boss=false) {
+  const pool = boss ? MONSTER_EMOJIS.boss : MONSTER_EMOJIS[Math.min(level,3)];
+  return pool[Math.floor(Math.random()*pool.length)];
 }
 
-function pickAnswer(ans, btn, color) {
-  if (state.animating) return;
-  state.animating = true;
-  document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
-
-  btn.classList.add('selected');
-  btn.style.background = `linear-gradient(135deg,${color},${color}cc)`;
-  btn.style.boxShadow = `0 6px 20px ${color}50`;
-
-  setTimeout(() => {
-    state.scores[ans.type]++;
-    state.q++;
-    state.animating = false;
-    if (state.q < questions.length) {
-      renderQuestion();
-    } else {
-      calcResult();
-    }
-  }, 500);
-}
-
-function calcResult() {
-  const s = state.scores;
-  state.result =
-    (s.E >= s.I ? 'E' : 'I') +
-    (s.S >= s.N ? 'S' : 'N') +
-    (s.T >= s.F ? 'T' : 'F') +
-    (s.J >= s.P ? 'J' : 'P');
-  showResult();
-}
-
-
-
-
-
-
-function showResult() {
-  const r = state.result;
-  const info = mbti[r];
-  const s = state.scores;
-  const name = state.userName;
-
-  document.getElementById('result-emoji').textContent = info.emoji;
-
-  const badge = document.getElementById('result-badge');
-  badge.style.background = `linear-gradient(135deg,${info.color}20,rgba(232,0,11,0.08))`;
-  badge.style.border = `2px solid ${info.color}`;
-  badge.style.boxShadow = `0 0 28px ${info.color}50, inset 0 0 16px ${info.color}10`;
-  const typeText = document.getElementById('result-type-text');
-  typeText.textContent = r;
-  typeText.style.color = info.color;
-
-  document.getElementById('result-name').textContent = (name ? name + ' — ' : '') + info.name + '!';
-  document.getElementById('result-desc').textContent = info.desc;
-
-  // Score bars
-  const rows = [
-    {left:'E 외향', right:'내향 I', lv:s.E, rv:s.I, color:'#FF0064'},
-    {left:'S 감각', right:'직관 N', lv:s.S, rv:s.N, color:'#A855F7'},
-    {left:'T 사고', right:'감정 F', lv:s.T, rv:s.F, color:'#00B8FF'},
-    {left:'J 계획', right:'즉흥 P', lv:s.J, rv:s.P, color:'#00C853'}
+// ===========================
+//  SPAWNING
+// ===========================
+let spawnTimer=0, dropTimer=0;
+let allWords = [];
+function buildWordPool() {
+  allWords = [
+    ...targetWords.map(w=>({word:w,type:'target'})),
+    ...otherWords.map(w=>({word:w,type:'other'}))
   ];
-  const scoreContainer = document.getElementById('score-rows');
-  scoreContainer.innerHTML = '';
-  rows.forEach((row, i) => {
-    const total = row.lv + row.rv;
-    const leftPct  = total > 0 ? Math.round(row.lv / total * 100) : 50;
-    const rightPct = 100 - leftPct;
-    const leftWins = leftPct >= rightPct;
-    const div = document.createElement('div');
-    div.className = 'score-row';
-    if (i === rows.length - 1) div.style.marginBottom = '0';
-    // 이긴 쪽(높은 점수) 방향에서 그 비율만큼만 컬러 게이지
-    // E30 I70 → 오른쪽에서 70%만 컬러 / E70 I30 → 왼쪽에서 70%만 컬러
-    const winPct  = leftWins ? leftPct : rightPct;
-    const winGrad = leftWins
-      ? `linear-gradient(90deg,${row.color}cc,${row.color})`
-      : `linear-gradient(270deg,${row.color}cc,${row.color})`;
-    const winStyle = leftWins
-      ? `left:0;width:${winPct}%;border-radius:10px;`
-      : `right:0;width:${winPct}%;border-radius:10px;`;
-    div.innerHTML = `
-      <div class="score-labels">
-        <span style="color:${leftWins ? row.color : '#bbb'};font-weight:${leftWins?'900':'600'}">${row.left} ${leftPct}%</span>
-        <span style="color:${!leftWins ? row.color : '#bbb'};font-weight:${!leftWins?'900':'600'}">${rightPct}% ${row.right}</span>
-      </div>
-      <div class="score-track" style="background:rgba(255,255,255,0.07);">
-        <div style="position:absolute;top:0;height:100%;${winStyle}background:${winGrad};"></div>
-      </div>`;
-    scoreContainer.appendChild(div);
+}
+buildWordPool();
+
+function spawnMonster(forceBoss=false) {
+  const ga = document.getElementById('game-area');
+  const gaW = ga.offsetWidth;
+  if(!gaW) return;
+
+  const pool = [...allWords];
+  if(!pool.length) return;
+  const item = pool[Math.floor(Math.random()*pool.length)];
+
+  const el = document.createElement('div');
+  el.className = `monster ${item.type}`;
+
+  const emoji = getEmoji(STATE.level, forceBoss);
+  const hp = forceBoss ? 5 : (STATE.level >= 3 ? 2 : 1);
+
+  el.innerHTML = `
+    <div class="monster-face" style="color:${item.type==='target'?'var(--neon-pink)':'var(--neon-cyan)'}">${emoji}</div>
+    <div class="monster-word">${item.word.toUpperCase()}</div>
+    ${hp>1?`<div class="monster-hp"><div class="monster-hp-fill" style="width:100%"></div></div>`:''}
+  `;
+
+  const x = 30 + Math.random()*(gaW-100);
+  el.style.left = x+'px';
+  el.style.top = '-80px';
+  el.style.position = 'absolute';
+
+  const monsterObj = { el, x, y:-80, type:item.type, word:item.word, hp, maxHp:hp, speed: STATE.dropSpeed*(0.8+Math.random()*0.4) };
+  STATE.monsters.push(monsterObj);
+  ga.appendChild(el);
+
+  el.addEventListener('click', (e)=>{ e.stopPropagation(); clickMonster(monsterObj); });
+}
+
+// ===========================
+//  GAME LOOP
+// ===========================
+let lastTime=0, frameId;
+function gameLoop(ts) {
+  if(!STATE.running) return;
+  const dt = Math.min(ts - lastTime, 50);
+  lastTime = ts;
+
+  const ga = document.getElementById('game-area');
+  const gaH = ga.offsetHeight;
+
+  // Move monsters
+  STATE.monsters.forEach(m=>{
+    m.y += m.speed * dt * 0.1;
+    m.el.style.top = m.y+'px';
   });
 
-  // Type grid
-  const grid = document.getElementById('type-grid');
-  grid.innerHTML = '';
-  Object.entries(mbti).forEach(([type, info2]) => {
-    const cell = document.createElement('div');
-    cell.className = 'type-cell';
-    const isMe = type === r;
-    cell.style.background = isMe ? `${info2.color}25` : 'rgba(255,255,255,0.03)';
-    cell.style.borderColor = isMe ? `${info2.color}80` : 'rgba(255,255,255,0.06)';
-    cell.style.fontWeight = isMe ? '900' : '500';
-    cell.style.color = isMe ? info2.color : '#444';
-    if(isMe) cell.style.boxShadow = `0 0 12px ${info2.color}40`;
-    cell.innerHTML = `<span class="tc-emoji">${info2.emoji}</span>${type}`;
-    grid.appendChild(cell);
-  });
-
-  show('result-screen');
-}
-
-// ── 결과 공유하기 ───────────────────────────────────────────
-function shareResult() {
-  const r = state.result;
-  const info = mbti[r];
-  const name = state.userName;
-  const url = 'https://uhoooo86-creative-droid.github.io/MBTI-forkids/';
-  const shareTitle = '🏫 나는 어떤 친구일까? 어린이 MBTI';
-  const shareText = (name ? name + '의' : '나의') + ' MBTI 결과는 ' + r + ' ' + info.emoji + ' ' + info.name + '! ' + info.desc;
-
-  // 1) 링크 먼저 클립보드에 복사
-  copyURL(url);
-
-  // 2) 동시에 시스템 공유 시트도 띄우기 (모바일)
-  if (navigator.share) {
-    navigator.share({ title: shareTitle, text: shareText, url: url })
-      .catch(() => {});
-  }
-}
-function copyURL(url) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(url)
-      .then(() => showToast('🔗 링크 복사 완료! 공유 창도 확인해봐요'))
-      .catch(() => copyFallback(url));
-  } else {
-    copyFallback(url);
-  }
-}
-function copyFallback(url) {
-  const ta = document.createElement('textarea');
-  ta.value = url;
-  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
-  document.body.appendChild(ta);
-  ta.focus(); ta.select();
-  try { document.execCommand('copy'); showToast('🔗 링크 복사 완료!'); } catch(e) { showToast('링크: ' + url); }
-  document.body.removeChild(ta);
-}
-
-// ── 카카오톡 열기 ───────────────────────────────────────────
-function openKakao() {
-  // 카카오톡 앱 scheme 시도 → 안 되면 앱스토어 이동
-  const appStoreUrl = 'https://apps.apple.com/app/id362057947';
-  const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.kakao.talk';
-  const kakaoScheme = 'kakaotalk://';
-
-  let opened = false;
-  const start = Date.now();
-
-  // iframe으로 앱 열기 시도
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:0;';
-  document.body.appendChild(iframe);
-  try { iframe.contentWindow.location.href = kakaoScheme; } catch(e) {}
-
-  window.addEventListener('blur', function onBlur() {
-    opened = true;
-    window.removeEventListener('blur', onBlur);
-  });
-
-  setTimeout(() => {
-    document.body.removeChild(iframe);
-    if (!opened && Date.now() - start < 1500) {
-      // 앱 없음 → 스토어로
-      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-      window.open(isIOS ? appStoreUrl : playStoreUrl, '_blank');
-      showToast('💛 카카오톡을 설치해봐요!');
-    } else {
-      showToast('💛 카카오톡이 열렸어요!');
+  // Check escaped
+  const escaped = STATE.monsters.filter(m => m.y > gaH - 30);
+  escaped.forEach(m=>{
+    if(m.type==='target') {
+      loseLife();
+      sfxEscape();
     }
-  }, 1200);
+    removeMonster(m);
+  });
+  STATE.monsters = STATE.monsters.filter(m=> m.y <= gaH - 30);
+
+  frameId = requestAnimationFrame(gameLoop);
 }
 
-// ── PDF 다운받기 ────────────────────────────────────────────
-function downloadPDF() {
-  const r = state.result;
-  const info = mbti[r];
-  const s = state.scores;
-  const name = state.userName;
-  const btn = document.getElementById('btn-save');
-  btn.textContent = '⏳ PDF 만드는 중...'; btn.disabled = true;
+// ===========================
+//  SPAWN SCHEDULER
+// ===========================
+function startSpawning() {
+  clearInterval(STATE.spawnInterval);
+  const baseDelay = Math.max(800, 2000 - STATE.level*150);
+  STATE.spawnInterval = setInterval(()=>{
+    if(!STATE.running) return;
+    if(STATE.monsters.length < 8) spawnMonster();
+  }, baseDelay);
+}
 
-  const scoreRows = [
-    {left:'E 외향', right:'내향 I', lv:s.E, rv:s.I},
-    {left:'S 감각', right:'직관 N', lv:s.S, rv:s.N},
-    {left:'T 사고', right:'감정 F', lv:s.T, rv:s.F},
-    {left:'J 계획', right:'즉흥 P', lv:s.J, rv:s.P}
-  ];
+// ===========================
+//  CLICK HANDLER
+// ===========================
+function clickMonster(m) {
+  if(!STATE.running) return;
+  STATE.totalClicks++;
 
-  const barHTML = scoreRows.map(row => {
-    const total = row.lv + row.rv;
-    const lp = total > 0 ? Math.round(row.lv / total * 100) : 50;
-    const rp = 100 - lp; const lw = lp >= rp;
-    const activeColor = '#ffffff';
-    const dimColor = 'rgba(255,255,255,0.25)';
-    return `
-      <div style="margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:white;margin-bottom:6px;">
-          <span style="opacity:${lw?1:0.4}">${row.left} ${lp}%</span>
-          <span style="opacity:${!lw?1:0.4}">${rp}% ${row.right}</span>
-        </div>
-        <div style="background:rgba(255,255,255,0.2);border-radius:8px;height:12px;position:relative;">
-          <div style="position:absolute;left:0;top:0;height:100%;width:${lp}%;background:${lw?activeColor:dimColor};border-radius:8px 0 0 8px;"></div>
-          <div style="position:absolute;right:0;top:0;height:100%;width:${rp}%;background:${!lw?activeColor:dimColor};border-radius:0 8px 8px 0;"></div>
-          <div style="position:absolute;left:50%;top:50%;width:2px;height:16px;background:rgba(255,255,255,0.5);transform:translate(-50%,-50%);border-radius:1px;"></div>
-        </div>
-      </div>`;
-  }).join('');
+  if(m.type === 'target') {
+    m.hp--;
+    STATE.correctClicks++;
 
-  const htmlContent = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
+    // Update HP bar
+    const hpFill = m.el.querySelector('.monster-hp-fill');
+    if(hpFill) hpFill.style.width = (m.hp/m.maxHp*100)+'%';
 
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Noto Sans KR',sans-serif; background:#f0f0f0; display:flex; justify-content:center; align-items:flex-start; padding:40px 20px; }
-  .page { width:500px; background:linear-gradient(160deg,#667eea,#764ba2); border-radius:32px; padding:48px 40px; color:white; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
-  .header { font-size:15px; font-weight:900; opacity:0.8; margin-bottom:24px; letter-spacing:1px; }
-  .big-emoji { font-size:80px; margin-bottom:12px; }
-  .badge { display:inline-block; background:rgba(255,255,255,0.2); border-radius:16px; padding:8px 28px; margin-bottom:14px; }
-  .badge span { font-size:34px; font-weight:900; letter-spacing:4px; }
-  .name { font-size:22px; font-weight:900; margin-bottom:8px; }
-  .desc { font-size:14px; opacity:0.85; line-height:1.7; margin-bottom:28px; }
-  .score-section { background:rgba(255,255,255,0.12); border-radius:20px; padding:20px 22px; margin-bottom:20px; }
-  .score-title { font-size:13px; font-weight:700; opacity:0.7; margin-bottom:16px; text-align:center; }
-  .url { font-size:12px; opacity:0.55; margin-top:8px; text-align:center; }
-  @media print { body{padding:0;background:white;} .page{box-shadow:none;border-radius:0;} }
-</style>
-</head><body>
-<div class="page">
-  <div class="header">🏫 나는 어떤 친구일까? · 어린이 MBTI</div>
-  <div class="big-emoji">${info.emoji}</div>
-  <div class="badge"><span>${r}</span></div>
-  <div class="name">${name ? name + '는 ' : '나는 '}${info.name}!</div>
-  <div class="desc">${info.desc}</div>
-  <div class="score-section">
-    <div class="score-title">📊 나의 성향 분석</div>
-    ${barHTML}
-  </div>
-  <div class="url">uhoooo86-creative-droid.github.io/MBTI-forkids</div>
-</div>
-<script>window.onload=function(){ window.print(); }<\/script>
-</body></html>`;
+    if(m.hp <= 0) {
+      const pts = 10 * STATE.level * (STATE.bossActive ? 3 : 1);
+      addScore(pts, m.x, m.y, true);
+      sfxHit();
+      STATE.combo++;
+      if(STATE.combo > STATE.maxCombo) STATE.maxCombo = STATE.combo;
+      updateComboDisplay();
+      spawnParticles(m.x+40, m.y+40, 'hit');
+      showHitText(m.x+40, m.y, `+${pts}`,'#39ff14');
 
-  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const win = window.open(url, '_blank');
-  if (!win) {
-    // 팝업 차단된 경우 직접 다운로드
-    const a = document.createElement('a');
-    a.href = url; a.download = 'MBTI_' + r + '_결과.html'; a.click();
-    showToast('📄 파일을 다운로드했어요! 브라우저에서 열어 인쇄하세요');
+      if(STATE.bossActive) {
+        STATE.bossHP--;
+        updateBossBar();
+        if(STATE.bossHP <= 0) endBoss();
+      }
+
+      removeMonster(m);
+      addXP(15 * STATE.level);
+    } else {
+      sfxHit();
+      spawnParticles(m.x+40, m.y+40, 'hit-small');
+    }
   } else {
-    showToast('📄 인쇄 창이 열렸어요! PDF로 저장하세요 🖨️');
+    STATE.combo = 0;
+    updateComboDisplay();
+    loseLife();
+    sfxWrong();
+    spawnParticles(m.x+40, m.y+40, 'wrong');
+    showHitText(m.x+40, m.y, 'WRONG!','#ff006e');
+    flashScreen('red');
+    removeMonster(m);
   }
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
-  btn.textContent = '📄 PDF 다운받기'; btn.disabled = false;
-}
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-function restart() {
-  document.getElementById('name-input').value = '';
-  state = { q:0, scores:{E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, userName:'', result:'', animating:false };
-  show('intro-screen');
 }
 
-// Enter key on name input
-document.getElementById('name-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') startQuiz();
+function removeMonster(m) {
+  m.el.style.transition='opacity 0.2s,transform 0.2s';
+  m.el.style.opacity='0'; m.el.style.transform='scale(0.3)';
+  setTimeout(()=>{ if(m.el.parentNode) m.el.parentNode.removeChild(m.el); },200);
+  STATE.monsters = STATE.monsters.filter(x=>x!==m);
+}
+
+// ===========================
+//  SCORE / XP / LEVEL
+// ===========================
+function addScore(pts) {
+  STATE.score += pts * (STATE.combo > 2 ? 1 + STATE.combo*0.1 : 1) | 0;
+  document.getElementById('score-val').textContent = STATE.score;
+}
+function addXP(xp) {
+  STATE.xp += xp;
+  if(STATE.xp >= STATE.xpNeeded) levelUp();
+  updateXPBar();
+}
+function updateXPBar() {
+  document.getElementById('xp-bar').style.width = Math.min(STATE.xp/STATE.xpNeeded*100,100)+'%';
+}
+function levelUp() {
+  STATE.xp -= STATE.xpNeeded;
+  STATE.level++;
+  STATE.xpNeeded = Math.floor(STATE.xpNeeded * 1.4);
+  STATE.dropSpeed += 0.08;
+  document.getElementById('level-val').textContent = STATE.level;
+  document.getElementById('level-text').textContent = `LV.${STATE.level}`;
+  sfxLevelUp();
+  showLevelUpBanner();
+  startSpawning();
+  updateXPBar();
+
+  // Boss every 5 levels
+  if(STATE.level % 5 === 0) setTimeout(startBoss, 1500);
+}
+
+// ===========================
+//  BOSS
+// ===========================
+function startBoss() {
+  if(!STATE.running) return;
+  STATE.bossActive = true;
+  STATE.bossMaxHP = STATE.level * 3;
+  STATE.bossHP = STATE.bossMaxHP;
+  document.getElementById('boss-bar').classList.add('show');
+  updateBossBar();
+  resizeGameArea();
+  // Spawn big boss
+  spawnMonster(true);
+}
+function updateBossBar() {
+  document.getElementById('boss-hp-fill').style.width = (STATE.bossHP/STATE.bossMaxHP*100)+'%';
+}
+function endBoss() {
+  STATE.bossActive = false;
+  document.getElementById('boss-bar').classList.remove('show');
+  resizeGameArea();
+  addScore(500 * STATE.level);
+  showHitText(window.innerWidth/2, window.innerHeight/2, 'BOSS SLAIN! +' + (500*STATE.level), '#ffea00');
+}
+
+// ===========================
+//  LIVES
+// ===========================
+function loseLife() {
+  STATE.lives--;
+  const hearts = ['h1','h2','h3'];
+  const h = document.getElementById(hearts[STATE.lives]);
+  if(h) { h.classList.add('lost'); h.style.animation='none'; }
+  flashScreen('red');
+  if(STATE.lives <= 0) gameOver();
+}
+
+// ===========================
+//  EFFECTS
+// ===========================
+function flashScreen(type) {
+  const el = document.getElementById('screen-flash');
+  el.className = ''; void el.offsetWidth;
+  el.className = type==='red'?'flash-red':'flash-green';
+}
+
+function spawnParticles(cx, cy, type) {
+  const ga = document.getElementById('game-area');
+  const colors = type==='hit' ? ['#39ff14','#00f5ff','#ffea00'] :
+                 type==='hit-small' ? ['#ffea00','#fff'] :
+                 ['#ff006e','#ff4444'];
+  const count = type==='hit'?12:6;
+  for(let i=0;i<count;i++){
+    const p = document.createElement('div');
+    p.className='particle';
+    const angle = (i/count)*Math.PI*2;
+    const dist = 30+Math.random()*60;
+    const tx = Math.cos(angle)*dist;
+    const ty = Math.sin(angle)*dist - 20;
+    const size = 4+Math.random()*6;
+    const dur = 0.4+Math.random()*0.4;
+    p.style.cssText=`left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;background:${colors[i%colors.length]};--tx:${tx}px;--ty:${ty}px;--dur:${dur}s;box-shadow:0 0 6px ${colors[i%colors.length]}`;
+    ga.appendChild(p);
+    setTimeout(()=>p.remove(), dur*1000);
+  }
+}
+
+function showHitText(x, y, text, color) {
+  const ga = document.getElementById('game-area');
+  const el = document.createElement('div');
+  el.className='hit-text';
+  el.textContent=text;
+  el.style.cssText=`left:${x}px;top:${y}px;color:${color};font-size:${text.includes('+')?'1.1rem':'0.9rem'};text-shadow:0 0 10px ${color}`;
+  ga.appendChild(el);
+  setTimeout(()=>el.remove(),800);
+}
+
+function updateComboDisplay() {
+  const el = document.getElementById('combo-display');
+  document.getElementById('combo-num').textContent = STATE.combo;
+  if(STATE.combo >= 3) {
+    el.classList.add('show');
+    sfxCombo();
+  } else {
+    el.classList.remove('show');
+  }
+}
+
+function showLevelUpBanner() {
+  const banner = document.getElementById('levelup-banner');
+  document.getElementById('levelup-sub').textContent = `LEVEL ${STATE.level} — SPEED UP!`;
+  banner.classList.remove('show'); void banner.offsetWidth;
+  banner.classList.add('show');
+}
+
+// ===========================
+//  START / STOP
+// ===========================
+function startGame() {
+  buildWordPool();
+  // Reset state
+  Object.assign(STATE, {
+    score:0, lives:3, level:1, xp:0, xpNeeded:100,
+    combo:0, maxCombo:0, totalClicks:0, correctClicks:0,
+    running:true, paused:false,
+    dropSpeed:0.4, bossActive:false, bossHP:0
+  });
+
+  // Reset UI
+  document.getElementById('score-val').textContent='0';
+  document.getElementById('level-val').textContent='1';
+  document.getElementById('level-text').textContent='LV.1';
+  document.getElementById('xp-bar').style.width='0%';
+  ['h1','h2','h3'].forEach(id=>{ const h=document.getElementById(id); h.classList.remove('lost'); });
+  document.getElementById('combo-display').classList.remove('show');
+  document.getElementById('boss-bar').classList.remove('show');
+  document.getElementById('target-vowel-display').textContent = 'TARGET: '+STATE.targetVowel;
+
+  // Clear monsters
+  STATE.monsters.forEach(m=>{ if(m.el.parentNode) m.el.parentNode.removeChild(m.el); });
+  STATE.monsters=[];
+
+  // Hide screens
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('gameover-screen').style.display='none';
+
+  resizeGameArea();
+  startSpawning();
+  lastTime = performance.now();
+  frameId = requestAnimationFrame(gameLoop);
+
+  if(!STATE.bgmStarted && STATE.bgmOn) startBGM();
+}
+
+function gameOver() {
+  STATE.running = false;
+  clearInterval(STATE.spawnInterval);
+  cancelAnimationFrame(frameId);
+
+  STATE.monsters.forEach(m=>{ if(m.el.parentNode) m.el.parentNode.removeChild(m.el); });
+  STATE.monsters=[];
+
+  const acc = STATE.totalClicks>0 ? Math.round(STATE.correctClicks/STATE.totalClicks*100) : 0;
+  document.getElementById('final-score').textContent = STATE.score + ' PTS';
+  document.getElementById('final-level').textContent = STATE.level;
+  document.getElementById('final-combo').textContent = 'x'+STATE.maxCombo;
+  document.getElementById('final-acc').textContent = acc+'%';
+
+  const msgs = ['대단해요! 다시 도전!','몬스터가 너무 강했어요!','더 잘할 수 있어요!','모음을 기억하세요!'];
+  document.getElementById('final-msg').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+
+  const go = document.getElementById('gameover-screen');
+  go.style.display='flex';
+}
+
+function showStart() {
+  document.getElementById('gameover-screen').style.display='none';
+  document.getElementById('start-screen').style.display='flex';
+}
+
+// ===========================
+//  MODAL
+// ===========================
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('target-words-area').value = targetWords.join('\n');
+  document.getElementById('other-words-area').value = otherWords.join('\n');
+  // Set active vowel tab
+  document.querySelectorAll('.vtab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.v === STATE.targetVowel || (STATE.targetVowel!='A'&&STATE.targetVowel!='E'&&STATE.targetVowel!='I'&&STATE.targetVowel!='O'&&STATE.targetVowel!='U'&&t.dataset.v==='CUSTOM'));
+  });
+  document.getElementById('custom-row').style.display = ['A','E','I','O','U'].includes(STATE.targetVowel) ? 'none':'flex';
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function saveSettings() {
+  targetWords = document.getElementById('target-words-area').value.split('\n').map(w=>w.trim()).filter(Boolean);
+  otherWords = document.getElementById('other-words-area').value.split('\n').map(w=>w.trim()).filter(Boolean);
+  buildWordPool();
+  closeModal();
+  document.getElementById('target-vowel-display').textContent = 'TARGET: '+STATE.targetVowel;
+}
+
+// Vowel tabs
+document.querySelectorAll('.vtab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const v = tab.dataset.v;
+    if(v==='CUSTOM') {
+      document.getElementById('custom-row').style.display='flex';
+    } else {
+      STATE.targetVowel = v;
+      document.getElementById('custom-row').style.display='none';
+      // Auto-populate words for selected vowel
+      autoPopulateWords(v);
+    }
+  });
 });
+
+document.getElementById('custom-vowel-input').addEventListener('input',function(){
+  STATE.targetVowel = this.value.toUpperCase();
+});
+
+function autoPopulateWords(vowel) {
+  const wordBank = {
+    A: { target:['apple','ant','axe','add','ace','aim','age','ape','art','arm','are','ask','at','as','an','am','all','and','any','act','air','able','also','away','again','after','always','already','around','above','among','agree','along','ahead','alive','alone','allow','alarm','angel','angle','align','adapt','admit','adopt','agent','amber'],
+          other:['gym','cry','fly','try','myth','glyph','sync','lynx','crypt','nymph','sky','spy','type','byte','style'] },
+    E: { target:['egg','elf','end','even','ever','each','east','easy','edge','else','enjoy','enter','event','every','equal','elect','eight','early','earth','elder','enemy','emerge','effect','entire','exceed'],
+          other:['gym','sky','myth','crypt','tryst','lymph','glyph','sync','why','dry','fry','cry','fly','try','spy'] },
+    I: { target:['ill','inn','ice','ivy','inch','into','iron','item','idea','idle','igloo','image','issue','ivory','island','inside','invite','ignore','impact'],
+          other:['gym','crypt','nymph','glyph','myth','tryst','thumb','crux','flux','hex','jot','lot','pop','mop','cod'] },
+    O: { target:['odd','off','old','one','own','open','once','only','over','oven','ocean','other','olive','offer','occur','often','orange','oppose','option','output','outside'],
+          other:['gym','sky','crypt','myth','lymph','glyph','tryst','fry','why','dry','cry','spy','try','fly','sly'] },
+    U: { target:['up','us','use','urn','upon','unit','until','under','upper','union','urban','ultra','uncle','unfair','update','useful','unique','universe','umbrella','ultimate'],
+          other:['gym','myth','crypt','glyph','sync','lynx','nymph','sky','dry','fry','try','cry','fly','spy','why'] }
+  };
+  if(wordBank[vowel]) {
+    targetWords = wordBank[vowel].target;
+    otherWords = wordBank[vowel].other;
+    document.getElementById('target-words-area').value = targetWords.join('\n');
+    document.getElementById('other-words-area').value = otherWords.join('\n');
+    buildWordPool();
+  }
+}
+
+// Close modal on overlay click
+document.getElementById('modal-overlay').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
+});
+
+// Init
+resizeGameArea();
 </script>
 </body>
 </html>
